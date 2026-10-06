@@ -1,4 +1,4 @@
-from ips_poc.util.pattern_loader import pattern
+from util.pattern_loader import pattern
 
 
 @pattern("P003")

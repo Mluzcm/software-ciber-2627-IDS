@@ -1,10 +1,9 @@
-from ips_poc.util.pattern_loader import patterns
+from util.pattern_loader import pattern_dict
 
 
 def main():
     # Runs every main method
-    print(patterns)
-    for name, cls in patterns.items():
+    for name, cls in pattern_dict.items():
         cls().run()
 
 
