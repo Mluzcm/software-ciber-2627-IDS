@@ -1,5 +1,6 @@
 from util.pattern_loader import pattern_dict
 from pathlib import Path
+import os
 
 
 def main():
@@ -11,7 +12,7 @@ def main():
 def files_logs():
     dir = Path('./logs')
     for file in dir.glob("*.log"):
-        if file.is_file():
+        if file.is_file() and os.access(file, os.R_OK):
             print(file.name)
 
 if __name__ == "__main__":
