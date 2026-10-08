@@ -1,5 +1,6 @@
 from pathlib import Path
 
+from log_parser import parse_log_lines
 from util.pattern_loader import pattern_dict
 
 
@@ -25,7 +26,10 @@ def cargar_configuracion(ruta_archivo):
                         f"Configuración incompleta en {ruta}:{numero_linea}"
                     )
                 if partes[1] == "LOG_FILE":
-                    config["log_file"] = partes[2]
+                    log_file = Path(partes[2])
+                    if not log_file.is_absolute():
+                        log_file = (ruta.parent / log_file).resolve()
+                    config["log_file"] = str(log_file)
                 elif partes[1] == "WHITELIST":
                     config["whitelist"] = partes[2:]
                 continue
@@ -57,7 +61,11 @@ def main(ruta_configuracion=None):
     ruta_configuracion = ruta_configuracion or Path(__file__).with_name("ids.conf")
     config = cargar_configuracion(ruta_configuracion)
 
+    with Path(config["log_file"]).open(encoding="utf-8", errors="replace") as archivo:
+        eventos = parse_log_lines(archivo)
+
     print(f"[*] Log a procesar: {config['log_file']}")
+    print(f"[*] Eventos parseados: {len(eventos)}")
     print(f"[*] Whitelist: {config['whitelist']}")
     print(f"[*] Reglas activas: {list(config['reglas_activas'])}\n")
 
