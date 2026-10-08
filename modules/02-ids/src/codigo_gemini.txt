@@ -1,0 +1,98 @@
+
+Código main
+
+from ips_poc.util.pattern_loader import patterns
+
+def cargar_configuracion(ruta_archivo):
+    config = {
+        "log_file": "",
+        "whitelist": [],
+        "reglas_activas": {}
+    }
+
+    with open(ruta_archivo, "r") as f:
+        for linea in f:
+            linea = linea.strip()
+            # Ignoramos líneas vacías o comentarios
+            if not linea or linea.startswith("#"):
+                continue
+
+            # Separamos la línea por comas y quitamos espacios en blanco extra
+            partes = [p.strip() for p in linea.split(",")]
+            
+            # 1. Extraer configuración general
+            if partes[0] == "CONFIG":
+                if partes[1] == "LOG_FILE":
+                    config["log_file"] = partes[2]
+                elif partes[1] == "WHITELIST":
+                    config["whitelist"] = partes[2:] # Todo lo demás en la línea son IPs
+            
+            # 2. Extraer reglas activas
+            else:
+                id_regla = partes[0]
+                estado = partes[1]
+                
+                if estado == "ON":
+                    # Guardamos los parámetros estructurados
+                    config["reglas_activas"][id_regla] = {
+                        "umbral": int(partes[2]),
+                        "ventana": int(partes[3]),
+                        "severidad": partes[4],
+                        "nombre": partes[5]
+                    }
+
+    return config
+
+def main():
+    # 1. Cargamos el fichero de configuración simple
+    config = cargar_configuracion("ids.conf")
+    
+    print(f"[*] Log a procesar: {config['log_file']}")
+    print(f"[*] Whitelist: {config['whitelist']}")
+    print(f"[*] Reglas activas: {list(config['reglas_activas'].keys())}\n")
+
+    # 2. Ejecutamos SOLO los patrones que están en ON y existen en la carpeta
+    for id_regla, parametros in config["reglas_activas"].items():
+        if id_regla in patterns: # 'patterns' viene de tu pattern_loader.py
+            clase_patron = patterns[id_regla]
+            
+            # Instanciamos la clase pasándole sus parámetros y la config general
+            instancia = clase_patron(parametros, config["log_file"], config["whitelist"])
+            
+            # Ejecutamos el motor de esa regla
+            instancia.run()
+        else:
+            print(f"[!] Aviso: La regla {id_regla} está ON pero falta su archivo .py")
+
+if __name__ == "__main__":
+    main()
+
+
+
+
+código pattern 1
+
+
+from ips_poc.util.pattern_loader import pattern
+
+@pattern("P001")
+class Pattern1():
+    
+    # Recibimos los datos del main.py al instanciar la clase
+    def __init__(self, parametros_regla, log_file, whitelist):
+        self.nombre = parametros_regla["nombre"]
+        self.umbral = parametros_regla["umbral"]
+        self.ventana = parametros_regla["ventana"]
+        self.severidad = parametros_regla["severidad"]
+        
+        self.log_file = log_file
+        self.whitelist = whitelist
+
+    def run(self):
+        print(f"--- Ejecutando {self.nombre} (ID: P001) ---")
+        print(f"    Riesgo: {self.severidad}")
+        print(f"    Condición: {self.umbral} intentos en {self.ventana} segundos.")
+        print(f"    Log configurado: {self.log_file}")
+        
+        # Aquí puedes abrir self.log_file y buscar las cadenas,
+        # ignorando las IPs que estén en self.whitelist
