@@ -1,6 +1,5 @@
 import re
 
-
 LOG_PREFIX = re.compile(
     r"^(?P<timestamp>[A-Z][a-z]{2}\s+\d{1,2}\s+\d{2}:\d{2}:\d{2}) "
     r"(?P<host>\S+) (?P<service>[^\[]+)(?:\[(?P<pid>\d+)\])?: "

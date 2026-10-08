@@ -1,19 +1,23 @@
 from util.pattern_loader import pattern
 
 
-@pattern("P002")
+@pattern("P002", "Patrón 2", "Medio")
 class Pattern2:
-    def __init__(self, parametros_regla, log_file, whitelist):
-        self.parametros = parametros_regla
-        self.log_file = log_file
-        self.whitelist = whitelist
+    def __init__(self, threshold, window, *args, **kwargs):
+        self.threshold = threshold
+        self.window = window
+        self.args = args
+        self.kwargs = kwargs
 
     def run(self):
-        print(f"--- Ejecutando {self.parametros['nombre']} (ID: P002) ---")
-        print(f"    Riesgo: {self.parametros['severidad']}")
+        print(f"--- Ejecutando {self.name} (ID: {self.pattern_id}) ---")
+        print(f"    Riesgo: {self.risk}")
         print(
-            f"    Condición: {self.parametros['umbral']} eventos "
-            f"en {self.parametros['ventana']} segundos."
+            f"    Condición: {self.threshold} intentos "
+            f"en {self.window} segundos."
         )
         print(f"    Log configurado: {self.log_file}")
         print(f"    IPs ignoradas: {self.whitelist}")
+
+    def print(self):
+        print(f"{self.pattern_id},{self.threshold},{self.window}")
