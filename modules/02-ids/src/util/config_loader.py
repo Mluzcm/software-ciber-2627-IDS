@@ -2,7 +2,7 @@ from pathlib import Path
 
 config: dict = {
     # Carga de valores por defecto hardcodeados
-    "LOGFILE": "../../../logs/1.log",
+    "LOGFILE": "../logs/1.log",
     "WHITELIST": ["127.0.0.1", "192.168.1.0/24"]
 }
 
